@@ -46,6 +46,7 @@ app.get('/', (req, res, next) => {
 // Endpoint to create new pizzas (POST "/pizzas")
 //
 app.post('/pizzas', (req, res, next) => {
+
   const newPizza = req.body;
 
   Pizza.create(newPizza)
@@ -63,7 +64,39 @@ app.post('/pizzas', (req, res, next) => {
 // Endpoint to get a list of pizzas (GET "/pizzas")
 // (that's your task 😉)
 // 
+app.get('/pizzas', (req, res, next) => {
 
+  const { max_price } = req.query;
+
+  Pizza.find()
+    .then((pizzas) => {
+      if (max_price === undefined){
+      res.status(200).json(pizzas);
+      return;
+      }
+      const filteredPizzas = pizzas.filter((pizzaDetails) => {
+        return pizzaDetails.price <= parseFloat(max_price);
+      });
+      res.status(200).json(filteredPizzas);
+    })
+    .catch((error) => {
+      console.log("\n\n Error fetching pizzas in the DB...\n", error);
+      res.status(500).json({ error: 'Failed to fetch pizzas' });
+    })
+
+})
+
+app.get('/pizzas/:pizzaId', (req, res, next) => {
+  let { pizzaId } = req.params;
+  Pizza.findById(pizzaId)
+    .then((pizza) => {
+      res.status(200).json(pizza);
+    })
+    .catch((error) => {
+      console.log("\n\n Error fetching pizza in the DB...\n", error);
+      res.status(500).json({ error: 'Failed to fetch pizza' });
+    })
+})
 
 
 app.listen(PORT, () => {

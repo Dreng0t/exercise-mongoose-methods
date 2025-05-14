@@ -68,6 +68,29 @@ app.get('/pizzas', (req, res, next) => {
 
   const { max_price } = req.query;
 
+  let filter = {};
+
+  if (max_price !== undefined) {
+    filter = { price: { $lte: max_price } }
+  }
+
+  Pizza.find(filter)
+    .then((pizzas) => {
+      res.status(200).json(pizzas);
+    })
+    .catch((error) => {
+      console.log("\n\n Error fetching pizzas in the DB...\n", error);
+      res.status(500).json({ error: 'Failed to fetch pizzas' });
+    })
+
+})
+
+/* Alternate approach to the above:
+
+app.get('/pizzas', (req, res, next) => {
+
+  const { max_price } = req.query;
+
   Pizza.find()
     .then((pizzas) => {
       if (max_price === undefined){
@@ -84,7 +107,9 @@ app.get('/pizzas', (req, res, next) => {
       res.status(500).json({ error: 'Failed to fetch pizzas' });
     })
 
-})
+})*/
+
+
 
 app.get('/pizzas/:pizzaId', (req, res, next) => {
   let { pizzaId } = req.params;
@@ -97,7 +122,6 @@ app.get('/pizzas/:pizzaId', (req, res, next) => {
       res.status(500).json({ error: 'Failed to fetch pizza' });
     })
 })
-
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}...`);

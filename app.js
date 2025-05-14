@@ -112,7 +112,7 @@ app.get('/pizzas', (req, res, next) => {
 })*/
 
 
-//get a particular pizz by ID
+//get a particular pizza by ID
 app.get('/pizzas/:pizzaId', (req, res, next) => {
 
   let { pizzaId } = req.params;
@@ -138,7 +138,7 @@ app.put('/pizzas/:pizzaId', (req, res, next) => {
 
   const newPizza = req.body;
 
-  Pizza.findByIdAndUpdate(pizzaId, newPizza)
+  Pizza.findByIdAndUpdate(pizzaId, newPizza, {new: true})
     .then((pizza) => {
       res.status(200).json(pizza);
     })

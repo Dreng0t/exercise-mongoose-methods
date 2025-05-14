@@ -64,6 +64,8 @@ app.post('/pizzas', (req, res, next) => {
 // Endpoint to get a list of pizzas (GET "/pizzas")
 // (that's your task 😉)
 // 
+
+//Get all Pizzas with a filter
 app.get('/pizzas', (req, res, next) => {
 
   const { max_price } = req.query;
@@ -110,9 +112,11 @@ app.get('/pizzas', (req, res, next) => {
 })*/
 
 
-
+//get a particular pizz by ID
 app.get('/pizzas/:pizzaId', (req, res, next) => {
+
   let { pizzaId } = req.params;
+
   Pizza.findById(pizzaId)
     .then((pizza) => {
       res.status(200).json(pizza);
@@ -126,3 +130,35 @@ app.get('/pizzas/:pizzaId', (req, res, next) => {
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}...`);
 });
+
+//Update a particular pizza
+app.put('/pizzas/:pizzaId', (req, res, next) => {
+
+  let { pizzaId } = req.params;
+
+  const newPizza = req.body;
+
+  Pizza.findByIdAndUpdate(pizzaId, newPizza)
+    .then((pizza) => {
+      res.status(200).json(pizza);
+    })
+    .catch((error) => {
+      console.log("\n\n Error updating pizza in the DB...\n", error);
+      res.status(500).json({ error: 'Failed to fetch pizza' });
+    })
+})
+
+//Delete a particular pizza
+app.delete('/pizzas/:pizzaId', (req, res, next) => {
+
+  let { pizzaId } = req.params;
+
+  Pizza.findByIdAndDelete(pizzaId)
+    .then((pizza) => {
+      res.status(200).json(pizza);
+    })
+    .catch((error) => {
+      console.log("\n\n Error deleting pizza in the DB...\n", error);
+      res.status(500).json({ error: 'Failed to fetch pizza' });
+    })
+})

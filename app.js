@@ -3,6 +3,7 @@ const logger = require('morgan');
 const mongoose = require('mongoose');
 
 const Pizza = require('./models/Pizza.model');
+const Cook = require('./models/Cook.model');
 
 const app = express();
 
@@ -59,6 +60,20 @@ app.post('/pizzas', (req, res, next) => {
     });
 });
 
+app.post('/cooks', (req, res, next) => {
+
+  const newCook = req.body;
+
+  Cook.create(newCook)
+    .then((cookFromDB) => {
+      res.status(201).json(cookFromDB);
+    })
+    .catch((error) => {
+      console.log("\n\n Error creating a new cook in the DB...\n", error);
+      res.status(500).json({ error: 'Failed to create a new cook' });
+    });
+});
+
 
 // 
 // Endpoint to get a list of pizzas (GET "/pizzas")
@@ -77,12 +92,26 @@ app.get('/pizzas', (req, res, next) => {
   }
 
   Pizza.find(filter)
+    .populate("cook")
     .then((pizzas) => {
       res.status(200).json(pizzas);
     })
     .catch((error) => {
       console.log("\n\n Error fetching pizzas in the DB...\n", error);
       res.status(500).json({ error: 'Failed to fetch pizzas' });
+    })
+
+})
+
+app.get('/cooks', (req, res, next) => {
+
+  Cook.find()
+    .then((cooks) => {
+      res.status(200).json(cooks);
+    })
+    .catch((error) => {
+      console.log("\n\n Error fetching cooks in the DB...\n", error);
+      res.status(500).json({ error: 'Failed to fetch cooks' });
     })
 
 })
@@ -118,6 +147,7 @@ app.get('/pizzas/:pizzaId', (req, res, next) => {
   let { pizzaId } = req.params;
 
   Pizza.findById(pizzaId)
+    .populate("cook")
     .then((pizza) => {
       res.status(200).json(pizza);
     })
@@ -127,9 +157,19 @@ app.get('/pizzas/:pizzaId', (req, res, next) => {
     })
 })
 
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}...`);
-});
+app.get('/cooks/:cookId', (req, res, next) => {
+
+  let { cookId } = req.params;
+
+  Cook.findById(cookId)
+    .then((cook) => {
+      res.status(200).json(cook);
+    })
+    .catch((error) => {
+      console.log("\n\n Error fetching cook in the DB...\n", error);
+      res.status(500).json({ error: 'Failed to fetch cook' });
+    })
+})
 
 //Update a particular pizza
 app.put('/pizzas/:pizzaId', (req, res, next) => {
@@ -138,7 +178,7 @@ app.put('/pizzas/:pizzaId', (req, res, next) => {
 
   const newPizza = req.body;
 
-  Pizza.findByIdAndUpdate(pizzaId, newPizza, {new: true})
+  Pizza.findByIdAndUpdate(pizzaId, newPizza, { new: true })
     .then((pizza) => {
       res.status(200).json(pizza);
     })
@@ -162,3 +202,11 @@ app.delete('/pizzas/:pizzaId', (req, res, next) => {
       res.status(500).json({ error: 'Failed to fetch pizza' });
     })
 })
+
+
+
+
+
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}...`);
+});
